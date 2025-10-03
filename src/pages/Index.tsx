@@ -90,6 +90,7 @@ const Index = () => {
   ],
   "tax": 18,
   "notes": "შენიშვნები...",
+  "is_overdue": false,
   "expire_hours": 48
 }`}
                   </pre>
@@ -112,6 +113,7 @@ const Index = () => {
     }
   ],
   "tax": 18,
+  "is_overdue": true,
   "expire_hours": 48
 }`}
                   </pre>
@@ -155,6 +157,7 @@ const Index = () => {
                     <li>notes</li>
                     <li>issue_date</li>
                     <li>due_date</li>
+                    <li>is_overdue (boolean)</li>
                     <li>expire_hours</li>
                   </ul>
                 </div>

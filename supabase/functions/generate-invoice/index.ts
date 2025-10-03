@@ -28,6 +28,7 @@ serve(async (req) => {
       notes,
       issue_date,
       due_date,
+      is_overdue = false,
       expire_hours
     } = await req.json();
 
@@ -87,6 +88,7 @@ serve(async (req) => {
         notes,
         issue_date: issue_date || new Date().toISOString().split('T')[0],
         due_date,
+        is_overdue,
         expire_at: expireAt
       })
       .select()

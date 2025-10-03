@@ -25,6 +25,7 @@ export type Database = {
           expire_at: string | null
           id: string
           invoice_number: string
+          is_overdue: boolean
           issue_date: string
           items: Json
           notes: string | null
@@ -44,6 +45,7 @@ export type Database = {
           expire_at?: string | null
           id?: string
           invoice_number: string
+          is_overdue?: boolean
           issue_date?: string
           items?: Json
           notes?: string | null
@@ -63,6 +65,7 @@ export type Database = {
           expire_at?: string | null
           id?: string
           invoice_number?: string
+          is_overdue?: boolean
           issue_date?: string
           items?: Json
           notes?: string | null

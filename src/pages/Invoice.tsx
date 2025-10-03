@@ -3,7 +3,9 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, AlertTriangle } from "lucide-react";
 
 interface LeasingItem {
   property_address: string;
@@ -36,6 +38,7 @@ interface InvoiceData {
   due_date?: string;
   expire_at?: string;
   expense_type: 'leasing' | 'marketing';
+  is_overdue: boolean;
   created_at: string;
 }
 
@@ -124,11 +127,30 @@ const Invoice = () => {
   return (
     <div className="min-h-screen bg-secondary/30 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <Card className="p-8 md:p-12 shadow-lg">
+        <Card className={`p-8 md:p-12 shadow-lg ${invoice.is_overdue ? 'border-warning border-2' : ''}`}>
+          {/* Overdue Warning Banner */}
+          {invoice.is_overdue && (
+            <Alert className="mb-6 bg-warning/10 border-warning">
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              <AlertTitle className="text-warning font-bold">გადაცდენილი ინვოისი</AlertTitle>
+              <AlertDescription className="text-warning-foreground">
+                ამ ინვოისის გადახდის ვადა ამოიწურა. გთხოვთ დაუკავშირდეთ ადმინისტრაციას.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">ინვოისი</h1>
-            <p className="text-lg text-muted-foreground">#{invoice.invoice_number}</p>
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">ინვოისი</h1>
+              <p className="text-lg text-muted-foreground">#{invoice.invoice_number}</p>
+            </div>
+            {invoice.is_overdue && (
+              <Badge variant="destructive" className="bg-warning text-warning-foreground hover:bg-warning/90">
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                გადაცდენილი
+              </Badge>
+            )}
           </div>
 
           <Separator className="mb-8" />
@@ -157,7 +179,10 @@ const Invoice = () => {
                 {invoice.due_date && (
                   <div>
                     <span className="text-sm text-muted-foreground">ვადა: </span>
-                    <span className="font-medium">{new Date(invoice.due_date).toLocaleDateString('ka-GE')}</span>
+                    <span className={`font-medium ${invoice.is_overdue ? 'text-warning font-bold' : ''}`}>
+                      {new Date(invoice.due_date).toLocaleDateString('ka-GE')}
+                      {invoice.is_overdue && ' ⚠️'}
+                    </span>
                   </div>
                 )}
               </div>
@@ -166,7 +191,7 @@ const Invoice = () => {
 
           {/* Items Table */}
           <div className="mb-8">
-            <div className="border rounded-lg overflow-hidden">
+            <div className={`border rounded-lg overflow-hidden ${invoice.is_overdue ? 'border-warning' : ''}`}>
               {invoice.expense_type === 'leasing' ? (
                 <table className="w-full">
                   <thead className="bg-muted">
