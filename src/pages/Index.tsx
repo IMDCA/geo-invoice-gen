@@ -71,23 +71,47 @@ const Index = () => {
                 </div>
                 
                 <div>
-                  <p className="font-semibold mb-2">მაგალითი (JSON):</p>
+                  <p className="font-semibold mb-2">მაგალითი - იჯარა (JSON):</p>
                   <pre className="p-2 bg-muted rounded text-xs overflow-x-auto">
 {`{
   "user_id": "user-uuid",
   "invoice_number": "INV-001",
+  "expense_type": "leasing",
   "client_name": "კომპანია ხხხ",
-  "client_address": "თბილისი, საქართველო",
+  "client_address": "თბილისი",
   "client_tax_id": "123456789",
   "items": [
     {
-      "description": "პროდუქტი 1",
-      "quantity": 2,
-      "unit_price": 100.50
+      "property_address": "რუსთაველის 45",
+      "lease_period": "2025 იანვარი",
+      "area_sqm": 150,
+      "monthly_rent": 2500.00
     }
   ],
   "tax": 18,
   "notes": "შენიშვნები...",
+  "expire_hours": 48
+}`}
+                  </pre>
+                </div>
+
+                <div>
+                  <p className="font-semibold mb-2">მაგალითი - მარკეტინგი (JSON):</p>
+                  <pre className="p-2 bg-muted rounded text-xs overflow-x-auto">
+{`{
+  "user_id": "user-uuid",
+  "invoice_number": "INV-002",
+  "expense_type": "marketing",
+  "client_name": "კომპანია ხხხ",
+  "items": [
+    {
+      "campaign_name": "Facebook Ads",
+      "service_type": "სოციალური მედია",
+      "duration": 30,
+      "rate": 50.00
+    }
+  ],
+  "tax": 18,
   "expire_hours": 48
 }`}
                   </pre>
@@ -117,6 +141,7 @@ const Index = () => {
                   <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground">
                     <li>user_id</li>
                     <li>invoice_number</li>
+                    <li>expense_type ("leasing" ან "marketing")</li>
                     <li>client_name</li>
                     <li>items (მასივი)</li>
                   </ul>
@@ -131,6 +156,24 @@ const Index = () => {
                     <li>issue_date</li>
                     <li>due_date</li>
                     <li>expire_hours</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold text-accent">იჯარა - items:</p>
+                  <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground text-xs">
+                    <li>property_address</li>
+                    <li>lease_period</li>
+                    <li>area_sqm</li>
+                    <li>monthly_rent</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold text-accent">მარკეტინგი - items:</p>
+                  <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground text-xs">
+                    <li>campaign_name</li>
+                    <li>service_type</li>
+                    <li>duration</li>
+                    <li>rate</li>
                   </ul>
                 </div>
               </div>

@@ -19,6 +19,7 @@ serve(async (req) => {
     const {
       user_id,
       invoice_number,
+      expense_type,
       client_name,
       client_address,
       client_tax_id,
@@ -30,20 +31,35 @@ serve(async (req) => {
       expire_hours
     } = await req.json();
 
-    console.log('Generating invoice:', { invoice_number, client_name });
+    console.log('Generating invoice:', { invoice_number, client_name, expense_type });
 
     // Validate required fields
-    if (!user_id || !invoice_number || !client_name || !items || !Array.isArray(items)) {
+    if (!user_id || !invoice_number || !expense_type || !client_name || !items || !Array.isArray(items)) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Missing required fields: user_id, invoice_number, expense_type, client_name, items' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Calculate totals
-    const subtotal = items.reduce((sum: number, item: any) => {
-      return sum + (item.quantity * item.unit_price);
-    }, 0);
+    // Validate expense type
+    if (expense_type !== 'leasing' && expense_type !== 'marketing') {
+      return new Response(
+        JSON.stringify({ error: 'expense_type must be either "leasing" or "marketing"' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Calculate totals based on expense type
+    let subtotal = 0;
+    if (expense_type === 'leasing') {
+      subtotal = items.reduce((sum: number, item: any) => {
+        return sum + (item.monthly_rent || 0);
+      }, 0);
+    } else {
+      subtotal = items.reduce((sum: number, item: any) => {
+        return sum + ((item.duration || 0) * (item.rate || 0));
+      }, 0);
+    }
 
     const taxAmount = tax ? (subtotal * tax / 100) : 0;
     const total = subtotal + taxAmount;
@@ -60,6 +76,7 @@ serve(async (req) => {
       .insert({
         user_id,
         invoice_number,
+        expense_type,
         client_name,
         client_address,
         client_tax_id,

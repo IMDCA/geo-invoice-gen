@@ -21,6 +21,7 @@ export type Database = {
           client_tax_id: string | null
           created_at: string
           due_date: string | null
+          expense_type: string | null
           expire_at: string | null
           id: string
           invoice_number: string
@@ -39,6 +40,7 @@ export type Database = {
           client_tax_id?: string | null
           created_at?: string
           due_date?: string | null
+          expense_type?: string | null
           expire_at?: string | null
           id?: string
           invoice_number: string
@@ -57,6 +59,7 @@ export type Database = {
           client_tax_id?: string | null
           created_at?: string
           due_date?: string | null
+          expense_type?: string | null
           expire_at?: string | null
           id?: string
           invoice_number?: string

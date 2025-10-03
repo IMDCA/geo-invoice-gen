@@ -5,11 +5,21 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle } from "lucide-react";
 
-interface InvoiceItem {
-  description: string;
-  quantity: number;
-  unit_price: number;
+interface LeasingItem {
+  property_address: string;
+  lease_period: string;
+  monthly_rent: number;
+  area_sqm: number;
 }
+
+interface MarketingItem {
+  campaign_name: string;
+  service_type: string;
+  duration: number;
+  rate: number;
+}
+
+type InvoiceItem = LeasingItem | MarketingItem;
 
 interface InvoiceData {
   id: string;
@@ -25,6 +35,7 @@ interface InvoiceData {
   issue_date: string;
   due_date?: string;
   expire_at?: string;
+  expense_type: 'leasing' | 'marketing';
   created_at: string;
 }
 
@@ -63,6 +74,7 @@ const Invoice = () => {
       // Transform data to match InvoiceData interface
       const invoiceData: InvoiceData = {
         ...data,
+        expense_type: (data.expense_type || 'leasing') as 'leasing' | 'marketing',
         items: Array.isArray(data.items) ? data.items as unknown as InvoiceItem[] : []
       };
 
@@ -155,28 +167,63 @@ const Invoice = () => {
           {/* Items Table */}
           <div className="mb-8">
             <div className="border rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-4 font-semibold">აღწერა</th>
-                    <th className="text-center p-4 font-semibold">რაოდენობა</th>
-                    <th className="text-right p-4 font-semibold">ფასი</th>
-                    <th className="text-right p-4 font-semibold">ჯამი</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoice.items.map((item, index) => (
-                    <tr key={index} className="border-t">
-                      <td className="p-4">{item.description}</td>
-                      <td className="text-center p-4">{item.quantity}</td>
-                      <td className="text-right p-4">{item.unit_price.toFixed(2)} ₾</td>
-                      <td className="text-right p-4 font-medium">
-                        {(item.quantity * item.unit_price).toFixed(2)} ₾
-                      </td>
+              {invoice.expense_type === 'leasing' ? (
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left p-4 font-semibold">ქონების მისამართი</th>
+                      <th className="text-center p-4 font-semibold">იჯარის პერიოდი</th>
+                      <th className="text-right p-4 font-semibold">ფართობი (მ²)</th>
+                      <th className="text-right p-4 font-semibold">ყოველთვიური ქირა</th>
+                      <th className="text-right p-4 font-semibold">ჯამი</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {invoice.items.map((item, index) => {
+                      const leasingItem = item as LeasingItem;
+                      return (
+                        <tr key={index} className="border-t">
+                          <td className="p-4">{leasingItem.property_address}</td>
+                          <td className="text-center p-4">{leasingItem.lease_period}</td>
+                          <td className="text-right p-4">{leasingItem.area_sqm} მ²</td>
+                          <td className="text-right p-4">{leasingItem.monthly_rent.toFixed(2)} ₾</td>
+                          <td className="text-right p-4 font-medium">
+                            {leasingItem.monthly_rent.toFixed(2)} ₾
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left p-4 font-semibold">კამპანიის სახელი</th>
+                      <th className="text-left p-4 font-semibold">სერვისის ტიპი</th>
+                      <th className="text-center p-4 font-semibold">ხანგრძლივობა</th>
+                      <th className="text-right p-4 font-semibold">ტარიფი</th>
+                      <th className="text-right p-4 font-semibold">ჯამი</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoice.items.map((item, index) => {
+                      const marketingItem = item as MarketingItem;
+                      return (
+                        <tr key={index} className="border-t">
+                          <td className="p-4">{marketingItem.campaign_name}</td>
+                          <td className="p-4">{marketingItem.service_type}</td>
+                          <td className="text-center p-4">{marketingItem.duration}</td>
+                          <td className="text-right p-4">{marketingItem.rate.toFixed(2)} ₾</td>
+                          <td className="text-right p-4 font-medium">
+                            {(marketingItem.duration * marketingItem.rate).toFixed(2)} ₾
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
 
