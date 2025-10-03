@@ -97,22 +97,23 @@ const Index = () => {
                 </div>
 
                 <div>
-                  <p className="font-semibold mb-2">მაგალითი - მარკეტინგი (JSON):</p>
+                  <p className="font-semibold mb-2">მაგალითი - გადაცდენილი (JSON):</p>
                   <pre className="p-2 bg-muted rounded text-xs overflow-x-auto">
 {`{
   "user_id": "user-uuid",
   "invoice_number": "INV-002",
-  "expense_type": "marketing",
+  "expense_type": "leasing",
   "client_name": "კომპანია ხხხ",
   "items": [
     {
-      "campaign_name": "Facebook Ads",
-      "service_type": "სოციალური მედია",
-      "duration": 30,
-      "rate": 50.00
+      "property_address": "ვაჟა-ფშაველას 25",
+      "lease_period": "2025 თებერვალი",
+      "area_sqm": 200,
+      "monthly_rent": 3000.00
     }
   ],
   "tax": 18,
+  "due_date": "2025-01-15",
   "is_overdue": true,
   "expire_hours": 48
 }`}

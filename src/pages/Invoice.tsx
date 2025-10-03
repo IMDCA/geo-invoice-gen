@@ -47,6 +47,7 @@ const Invoice = () => {
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [loading, setLoading] = useState(true);
   const [expired, setExpired] = useState(false);
+  const [overdueDays, setOverdueDays] = useState(0);
 
   useEffect(() => {
     const fetchInvoice = async () => {
@@ -72,6 +73,15 @@ const Invoice = () => {
       // Check expiration
       if (data.expire_at && new Date(data.expire_at) < new Date()) {
         setExpired(true);
+      }
+
+      // Calculate overdue days if invoice is overdue
+      if (data.is_overdue && data.due_date) {
+        const dueDate = new Date(data.due_date);
+        const today = new Date();
+        const diffTime = today.getTime() - dueDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        setOverdueDays(diffDays);
       }
 
       // Transform data to match InvoiceData interface
@@ -124,17 +134,27 @@ const Invoice = () => {
     );
   }
 
+  // Determine severity level based on overdue days
+  const isSeverelyOverdue = overdueDays >= 7;
+  const overdueColor = isSeverelyOverdue ? 'destructive' : 'warning';
+  const overdueBorderClass = isSeverelyOverdue ? 'border-destructive' : 'border-warning';
+  const overdueTextClass = isSeverelyOverdue ? 'text-destructive' : 'text-warning';
+
   return (
     <div className="min-h-screen bg-secondary/30 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <Card className={`p-8 md:p-12 shadow-lg ${invoice.is_overdue ? 'border-warning border-2' : ''}`}>
+        <Card className={`p-8 md:p-12 shadow-lg ${invoice.is_overdue ? `border-2 ${overdueBorderClass}` : ''}`}>
           {/* Overdue Warning Banner */}
           {invoice.is_overdue && (
-            <Alert className="mb-6 bg-warning/10 border-warning">
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              <AlertTitle className="text-warning font-bold">გადაცდენილი ინვოისი</AlertTitle>
-              <AlertDescription className="text-warning-foreground">
-                ამ ინვოისის გადახდის ვადა ამოიწურა. გთხოვთ დაუკავშირდეთ ადმინისტრაციას.
+            <Alert className={`mb-6 ${isSeverelyOverdue ? 'bg-destructive/10 border-destructive' : 'bg-warning/10 border-warning'}`}>
+              <AlertTriangle className={`h-5 w-5 ${overdueTextClass}`} />
+              <AlertTitle className={`${overdueTextClass} font-bold`}>
+                {isSeverelyOverdue ? 'სერიოზულად გადაცდენილი ინვოისი' : 'გადაცდენილი ინვოისი'}
+              </AlertTitle>
+              <AlertDescription className={overdueTextClass}>
+                {isSeverelyOverdue 
+                  ? `ამ ინვოისის გადახდის ვადა გასულია ${overdueDays} დღის წინ. გადაუდებელი გადახდა სავალდებულოა!`
+                  : 'ამ ინვოისის გადახდის ვადა ამოიწურა. გთხოვთ დაუკავშირდეთ ადმინისტრაციას.'}
               </AlertDescription>
             </Alert>
           )}
@@ -146,9 +166,14 @@ const Invoice = () => {
               <p className="text-lg text-muted-foreground">#{invoice.invoice_number}</p>
             </div>
             {invoice.is_overdue && (
-              <Badge variant="destructive" className="bg-warning text-warning-foreground hover:bg-warning/90">
+              <Badge 
+                variant={isSeverelyOverdue ? "destructive" : "default"}
+                className={isSeverelyOverdue 
+                  ? '' 
+                  : 'bg-warning text-warning-foreground hover:bg-warning/90'}
+              >
                 <AlertTriangle className="w-4 h-4 mr-1" />
-                გადაცდენილი
+                {isSeverelyOverdue ? `${overdueDays} დღე გადაცდენილი` : 'გადაცდენილი'}
               </Badge>
             )}
           </div>
@@ -179,9 +204,9 @@ const Invoice = () => {
                 {invoice.due_date && (
                   <div>
                     <span className="text-sm text-muted-foreground">ვადა: </span>
-                    <span className={`font-medium ${invoice.is_overdue ? 'text-warning font-bold' : ''}`}>
+                    <span className={`font-medium ${invoice.is_overdue ? `${overdueTextClass} font-bold` : ''}`}>
                       {new Date(invoice.due_date).toLocaleDateString('ka-GE')}
-                      {invoice.is_overdue && ' ⚠️'}
+                      {invoice.is_overdue && ` ⚠️ (${overdueDays} დღე)`}
                     </span>
                   </div>
                 )}
@@ -191,7 +216,7 @@ const Invoice = () => {
 
           {/* Items Table */}
           <div className="mb-8">
-            <div className={`border rounded-lg overflow-hidden ${invoice.is_overdue ? 'border-warning' : ''}`}>
+            <div className={`border rounded-lg overflow-hidden ${invoice.is_overdue ? overdueBorderClass : ''}`}>
               {invoice.expense_type === 'leasing' ? (
                 <table className="w-full">
                   <thead className="bg-muted">
